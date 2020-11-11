@@ -98,78 +98,68 @@ public class MainActivity extends AppCompatActivity {
 
     }*/
 
-    public void APIRequestObject(){
+    public void APIRequestObject() {
         jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET, APIUrl,null,
+                Request.Method.GET, APIUrl, null,
                 response -> {
                     JSONObject jsonObject = null;
 
                     int le = response.length();
-                    String len = le+" ";
-                    Log.i("json_length",len);
-                    Log.i("API",response.toString());
-                    try{
+                    String len = le + " ";
+                    Log.i("json_length", len);
+                    Log.i("API", response.toString());
+                    try {
                         JSONObject jsonData = response.getJSONObject("data");
                         JSONArray jsonArray = jsonData.getJSONArray("coins");
 
 
-                        for(int i = 0 ; i< jsonArray.length();i++){
+                        for (int i = 0; i < jsonArray.length(); i++) {
                             jsonObject = jsonArray.getJSONObject(i);
 
                             try {
-                                Log.i("APIResponse"+i ,jsonObject.toString());
+                                Log.i("APIResponse" + i, jsonObject.toString());
 
                                 Coin coin = new Coin();
 
 
-                                if(jsonObject.getString("name").isEmpty()){
+                                //bug fix here about null descript
+
+                                if (jsonObject.getString("name").isEmpty()) {
                                     continue;
-                                }
-                                if(jsonObject.getString("description").isEmpty()){
-                                    coin.setName(jsonObject.getString("name"));
-                                    coin.setDescription(jsonObject.getString("NO SUCH INFORMATION"));
-                                    coin.setImgUrl(jsonObject.getString("iconUrl"));
-                                    coins.add(coin);
-                                }
-                                if(jsonObject.getString("iconUrl").isEmpty()){
-                                    coin.setName(jsonObject.getString("name"));
-                                    coin.setDescription(jsonObject.getString("description"));
-                                    coins.add(coin);
-
-                                }else{
+                                } else {
                                     coin.setName(jsonObject.getString("name"));
                                     coin.setDescription(jsonObject.getString("description"));
                                     coin.setImgUrl(jsonObject.getString("iconUrl"));
+                                    coin.setIconType(jsonObject.getString("iconType"));
                                     coins.add(coin);
-
                                 }
 
-                                Log.i("RESPONSE"+i,jsonObject.getString("name")+" "+jsonObject.getString("iconUrl"));
-                                coins.add(coin);
+                                Log.i("RESPONSE" + i, jsonObject.getString("name") + " " + jsonObject.getString("iconUrl"));
+                                //coins.add(coin);
 
-                            } catch (JSONException e){
+                            } catch (JSONException e) {
                                 e.printStackTrace();
 
                             }
                         }
 
-                    }catch (JSONException e){
-                        Log.e("API",e.toString());
+                    } catch (JSONException e) {
+                        Log.e("API", e.toString());
                     }
 
 
                     setupRecyclerView(coins);
 
                 }, error -> {
-                    Log.e("API","Fetch error");
-                    Log.e("API",error.toString());
-                });
+            Log.e("API", "Fetch error");
+            Log.e("API", error.toString());
+        });
         requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
 
     }
 
-    private void setupRecyclerView(List<Coin> coins){
+    private void setupRecyclerView(List<Coin> coins) {
 
         RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(this, coins);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

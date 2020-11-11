@@ -4,16 +4,18 @@ public class Coin {
     private String name;
     private String description;
     private String imgUrl;
+    private String iconType;
 
 
     public  Coin(){
 
     }
 
-    public Coin(String name, String description, String imgUrl) {
+    public Coin(String name, String description, String imgUrl,String iconType) {
         this.name = name;
         this.description = description;
         this.imgUrl = imgUrl;
+        this.iconType = iconType;
     }
 
     public String getName() {
@@ -38,5 +40,13 @@ public class Coin {
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
+    }
+
+    public String getIconType() {
+        return iconType;
+    }
+
+    public void setIconType(String iconType) {
+        this.iconType = iconType;
     }
 }
