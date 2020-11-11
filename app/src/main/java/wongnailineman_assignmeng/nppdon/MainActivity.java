@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     RequestQueue requestQueue;
     JsonArrayRequest jsonArrayRequest;
+    JsonObjectRequest jsonObjectRequest;
     private List<Coin> coins;
     private RecyclerView recyclerView;
 
@@ -51,17 +52,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         coins = new ArrayList<>();
-
         recyclerView = findViewById(R.id.recyclerView);
-        APIRequest();
+        APIRequestObject();
 
     }
 
-    public void APIRequest(){
+    /*public void APIRequestArray(){
         jsonArrayRequest = new JsonArrayRequest(APIUrl, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 JSONObject jsonObject = null;
+                int le = response.length();
+                String len = le+" ";
+                Log.i("jsonlength",len);
+
 
                 for(int i = 0 ; i< response.length();i++){
                     try {
@@ -80,15 +84,88 @@ public class MainActivity extends AppCompatActivity {
                 }
                 setupRecyclerView(coins);
 
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
 
+                    Log.e("API","Fetch error");
+                    Log.e("API",error.toString());
+                }
             }
         });
         requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonArrayRequest);
+
+    }*/
+
+    public void APIRequestObject(){
+        jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET, APIUrl,null,
+                response -> {
+                    JSONObject jsonObject = null;
+
+                    int le = response.length();
+                    String len = le+" ";
+                    Log.i("json_length",len);
+                    Log.i("API",response.toString());
+                    try{
+                        JSONObject jsonData = response.getJSONObject("data");
+                        JSONArray jsonArray = jsonData.getJSONArray("coins");
+
+
+                        for(int i = 0 ; i< jsonArray.length();i++){
+                            jsonObject = jsonArray.getJSONObject(i);
+
+                            try {
+                                Log.i("APIResponse"+i ,jsonObject.toString());
+
+                                Coin coin = new Coin();
+
+
+                                if(jsonObject.getString("name").isEmpty()){
+                                    continue;
+                                }
+                                if(jsonObject.getString("description").isEmpty()){
+                                    coin.setName(jsonObject.getString("name"));
+                                    coin.setDescription(jsonObject.getString("NO SUCH INFORMATION"));
+                                    coin.setImgUrl(jsonObject.getString("iconUrl"));
+                                    coins.add(coin);
+                                }
+                                if(jsonObject.getString("iconUrl").isEmpty()){
+                                    coin.setName(jsonObject.getString("name"));
+                                    coin.setDescription(jsonObject.getString("description"));
+                                    coins.add(coin);
+
+                                }else{
+                                    coin.setName(jsonObject.getString("name"));
+                                    coin.setDescription(jsonObject.getString("description"));
+                                    coin.setImgUrl(jsonObject.getString("iconUrl"));
+                                    coins.add(coin);
+
+                                }
+
+                                Log.i("RESPONSE"+i,jsonObject.getString("name")+" "+jsonObject.getString("iconUrl"));
+                                coins.add(coin);
+
+                            } catch (JSONException e){
+                                e.printStackTrace();
+
+                            }
+                        }
+
+                    }catch (JSONException e){
+                        Log.e("API",e.toString());
+                    }
+
+
+                    setupRecyclerView(coins);
+
+                }, error -> {
+                    Log.e("API","Fetch error");
+                    Log.e("API",error.toString());
+                });
+        requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(jsonObjectRequest);
 
     }
 
